@@ -3,8 +3,15 @@
     <head>
         <title>Start Page</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+         <script type="module">
+          import { BankStatements } from "./js/BankStatements.js";          
+          window.BankStatements = BankStatements;          
+        </script>
     </head>
     <body>
-        <h1>Hello World!</h1>
+        <button onclick="">Load</button>
+        <button onclick="">Add</button>
+        <br>
+        <div id="data"></div>
     </body>
 </html>
