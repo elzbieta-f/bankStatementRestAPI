@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
@@ -23,7 +24,7 @@ public class BankStatements {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<BankStatement> getAll() throws IOException{
+    public List<BankStatement> getAll() throws IOException, ParseException{
         List<BankStatement> list =new ArrayList();
         try (
                 InputStream is = request.getServletContext().getResourceAsStream("/WEB-INF/bankStatements.csv");
@@ -32,7 +33,7 @@ public class BankStatements {
         ) {
             String line;
             while ((line = br.readLine()) != null) {
-                list.add(new BankStatement());
+                list.add(new BankStatement(line));
             }
         }
         return list;

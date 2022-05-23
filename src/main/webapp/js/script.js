@@ -3,7 +3,9 @@ function cleanElement(el) {
         el.removeChild(el.firstChild);
     }
 }
-
+/**
+ * Puts the fetched result from BankStatements.getAll() method to a HTML table  * 
+ */
 function showBankStatements() {
     const d = document.getElementById("data");
     cleanElement(d);
@@ -11,65 +13,49 @@ function showBankStatements() {
             .then(data => {
                 const d = document.getElementById("data");
                 cleanElement(d);
-                d.appendChild(document.createElement("br"));
-                let bBack = document.createElement("button");
-                bBack.addEventListener("click", () => {
-                    showZmones();
-                });
-                bBack.appendChild(document.createTextNode("Back"));
-                d.appendChild(bBack);
-                const h3 = document.createElement("h3");
-                h3.appendChild(document.createTextNode(`${event.target.zmogus.vardas} ${event.target.zmogus.pavarde} kontaktu sarasas`));
-                d.appendChild(h3);
-                let bAdd = document.createElement("button");
-                bAdd.addEventListener("click", () => {
-                    formKontaktas(event.target.zmogus);
-                });
-                bAdd.appendChild(document.createTextNode("Add"));
-                d.appendChild(bAdd);
                 const table = document.createElement("table");
                 let tr, th, td, button;
                 // creating table header
                 tr = document.createElement("tr");
                 th = document.createElement("th");
-                th.appendChild(document.createTextNode("id"));
+                th.appendChild(document.createTextNode("Account number"));
                 tr.appendChild(th);
                 th = document.createElement("th");
-                th.appendChild(document.createTextNode("Tipas"));
+                th.appendChild(document.createTextNode("Operation date"));
                 tr.appendChild(th);
                 th = document.createElement("th");
-                th.appendChild(document.createTextNode("Kontaktas"));
+                th.appendChild(document.createTextNode("Beneficiary"));
                 tr.appendChild(th);
                 th = document.createElement("th");
-                th.appendChild(document.createTextNode("Veiksmai"));
+                th.appendChild(document.createTextNode("Comment"));
+                tr.appendChild(th);
+                th = document.createElement("th");
+                th.appendChild(document.createTextNode("Ammount"));
+                tr.appendChild(th);
+                th = document.createElement("th");
+                th.appendChild(document.createTextNode("Currency"));
                 tr.appendChild(th);
                 table.appendChild(tr);
                 // creating data table
                 for (const row of data) {
                     tr = document.createElement("tr");
                     td = document.createElement("td");
-                    td.appendChild(document.createTextNode(row.id));
+                    td.appendChild(document.createTextNode(row.accountNumber));
                     tr.appendChild(td);
                     td = document.createElement("td");
-                    td.appendChild(document.createTextNode((row.tipas) ? row.tipas : ""));
+                    td.appendChild(document.createTextNode(row.operationDate));
                     tr.appendChild(td);
                     td = document.createElement("td");
-                    td.appendChild(document.createTextNode((row.kontaktas) ? row.kontaktas : ""));
+                    td.appendChild(document.createTextNode(row.beneficiary));
                     tr.appendChild(td);
-                    // creating action buttons for each row
                     td = document.createElement("td");
-                    button = document.createElement("button");
-                    button.appendChild(document.createTextNode("Edit"));
-                    button.zmogus = row.zmogus;
-                    button.kontaktasId = row.id;
-                    button.addEventListener("click", showKontaktas);
-                    td.appendChild(button);
-                    button = document.createElement("button");
-                    button.zmogus = row.zmogus;
-                    button.kontaktasId = row.id;
-                    button.appendChild(document.createTextNode("Delete"));
-                    button.addEventListener("click", deleteKontaktas);
-                    td.appendChild(button);
+                    td.appendChild(document.createTextNode(row.comment));
+                    tr.appendChild(td);
+                    td = document.createElement("td");
+                    td.appendChild(document.createTextNode(row.amount));
+                    tr.appendChild(td);
+                    td = document.createElement("td");
+                    td.appendChild(document.createTextNode(row.currency));
                     tr.appendChild(td);
                     table.appendChild(tr);
                 }
