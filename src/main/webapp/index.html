@@ -1,18 +1,20 @@
 <!DOCTYPE html>
+<!--
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit this template
+-->
 <html>
     <head>
-        <title>Start Page</title>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-         <script type="module">
-          import { BankStatements } from "./js/BankStatements.js";          
-          window.BankStatements = BankStatements;          
-        </script>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+       
         <script src="js/script.js"></script>
     </head>
     <body>
-        <button onclick="showBankStatements()">Load</button>
-        <button onclick="">Add</button>
-        <br>
-        <div id="data"></div>
+        <button onclick="showBankStatements()">Load all Bank Statements</button>
+        <button onclick="calculateBalance()">Calculate Balance</button>
+        <div id="data"></div>        
+        <div id="form"></div>
     </body>
 </html>

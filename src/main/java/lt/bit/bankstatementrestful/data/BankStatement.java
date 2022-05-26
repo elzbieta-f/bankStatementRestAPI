@@ -28,26 +28,33 @@ public class BankStatement {
     public BankStatement() {
     }
     
-     /**
+    /**
      * Parses provided line and creates object from parsed data. Line must have
-     * following fields separated by comma(",") accountNumber - String, 
-     * operationDate - Date in format yyyy-MM-dd, beneficiary - String, 
-     * comment - String, amount - BigDecimal, currency - String
+     * following fields separated by comma(",") accountNumber - String,
+     * operationDate - Date in format yyyy-MM-dd, beneficiary - String, comment
+     * - String, amount - BigDecimal, currency - String
+     * If the number of fields after parsing a line is not equal 6, the values 
+     * are not assigned to the object properties.
      *
      * @param line
      * @throws NullPointerException when line is null
      * @throws NumberFormatException when when amount is not decimal number;
      * @throws ParseException when date does not conform to specified pattern;
+     * @throws IllegalArgumentException if a line after split doesn't have the correct number of fields
      */
-    public BankStatement(String line)throws ParseException {
+    public BankStatement(String line) throws ParseException {
         String[] parts = line.split(",");
-        this.accountNumber=parts[0];
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        this.operationDate=sdf.parse(parts[1]);
-        this.beneficiary=parts[2];
-        this.comment=parts[3];
-        this.amount=new BigDecimal(parts[4]);
-        this.currency=parts[5];
+        if (parts.length == 6) {
+            this.accountNumber = parts[0];
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            this.operationDate = sdf.parse(parts[1]);
+            this.beneficiary = parts[2];
+            this.comment = parts[3];
+            this.amount = new BigDecimal(parts[4]);
+            this.currency = parts[5];
+        } else {
+            throw new IllegalArgumentException("Provided line doesn't have the correct number of fields");
+        }
     }
 
     public String getAccountNumber() {
