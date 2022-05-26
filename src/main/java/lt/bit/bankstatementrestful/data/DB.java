@@ -21,7 +21,16 @@ import java.util.List;
 import java.util.Set;
 import javax.servlet.ServletContext;
 
+
 public class DB {
+    /**
+     * reads data from CSV file (location: "/WEB-INF/bankStatements.csv" ) 
+     * and parses BankStatement object from each line
+     * 
+     * @param app ServletContext
+     * @return list of correctly parsed BankStatement objects
+     * @throws IOException 
+     */
 
     public static List<BankStatement> readData(ServletContext app) throws IOException {
         List<BankStatement> list = new ArrayList();
@@ -41,6 +50,12 @@ public class DB {
         }
         return list;
     }
+    /**
+     * 
+     * @param app ServletContext
+     * @param list writes to CSV file (location "/WEB-INF/filtered.csv")
+     * @throws IOException 
+     */
 
     public static void saveData(ServletContext app, List<BankStatement> list) throws IOException {
         URL url = app.getResource("/WEB-INF/filtered.csv");
@@ -66,6 +81,13 @@ public class DB {
         }
     }
     
+    /**
+     * 
+     * @param app ServletContext
+     * @return set of Strings containing account numbers read from CSV file
+     * @throws IOException 
+     */
+    
     public static Set<String> getAccounts(ServletContext app) throws IOException {
         Set<String> set = new HashSet();
         List<BankStatement> list=readData(app);
@@ -74,6 +96,13 @@ public class DB {
         }
         return set;
     }
+    /**
+     * Filters list of BankStatements with operation date within the requested period of time
+     * @param list
+     * @param from
+     * @param to
+     * @return 
+     */
 
     public static List<BankStatement> filterByDate(List<BankStatement> list, Date from, Date to) {
         List<BankStatement> filteredList = list.stream().
@@ -82,6 +111,13 @@ public class DB {
                 toList();
         return filteredList;
     }
+    
+    /**
+     * Filters list of BankStatements for the requested account number
+     * @param list
+     * @param an for Account number
+     * @return 
+     */
     public static List<BankStatement> filterByAccountNumber(List<BankStatement> list, String an){
         List<BankStatement> filteredList = list.stream().
                 filter(bs -> an.equals(bs.getAccountNumber())).
