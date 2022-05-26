@@ -1,21 +1,14 @@
 package lt.bit.bankstatementrestful.ws;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -34,6 +27,12 @@ public class BankStatements {
     @Context
     HttpServletRequest request;
 
+    /**
+     * calls a method readData from DB class to fetch results from CSV file
+     *
+     * @return a list of BankStatement in JSON
+     * @throws IOException
+     */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<BankStatement> getAll() throws IOException {
@@ -41,6 +40,18 @@ public class BankStatements {
         return list;
     }
 
+    /**
+     * Filters BankStatements from start date to end date
+     *
+     * Calls a method saveData from DB class to save filtered list to CSV file
+     *
+     * @param fromStr fetched from URL path, if date cannot be parsed from the
+     * parameter a date 1970-01-01 is set as date from
+     * @param toStr fetched from URL path if date cannot be parsed from the
+     * parameter a current is set as date to
+     * @return Response with Status OK
+     * @throws IOException
+     */
     @GET
     @Path("{from}/{to}")
     public Response exportToCSV(
@@ -67,6 +78,13 @@ public class BankStatements {
                 build();
     }
 
+    /**
+     * Reads data from CSV file
+     *
+     * @return set of strings with unique account numbers
+     * @throws IOException
+     */
+
     @GET
     @Path("accounts")
     @Produces(MediaType.APPLICATION_JSON)
@@ -74,18 +92,25 @@ public class BankStatements {
         Set<String> set = DB.getAccounts(request.getServletContext());
         return set;
     }
-    
+
+    /**
+     *
+     * @param account fetched from URL path (when date from and date to is not
+     * provided) default dates are set
+     * @return Balance object for the requested account in JSON
+     * @throws IOException
+     */
     @GET
     @Path("accounts/{account}")
     @Produces(MediaType.APPLICATION_JSON)
     public Balance getBalanceDateless(
             @PathParam("account") String account
-          ) throws IOException {
+    ) throws IOException {
         List<BankStatement> bs = DB.filterByAccountNumber(DB.readData(request.getServletContext()), account);
         Balance b = null;
         if (!bs.isEmpty()) {
             Date from = new Date(0);
-            Date to = new Date();            
+            Date to = new Date();
             String currency = bs.get(0).getCurrency();
             BigDecimal balance = DB.filterByDate(bs, from, to).
                     stream().map(bsa -> bsa.getAmount()).
@@ -94,6 +119,18 @@ public class BankStatements {
         }
         return b;
     }
+
+    /**
+     *
+     * @param account fetched from URL path
+     * @param fromStr fetched from URL path, if date cannot be parsed from the
+     * parameter a date 1970-01-01 is set as date from
+     * @param toStr fetched from URL path if date cannot be parsed from the
+     * parameter a current is set as date to
+     * @return Balance object for the requested account in a requested period in
+     * JSON
+     * @throws IOException
+     */
 
     @GET
     @Path("accounts/{account}/{from}/{to}")
@@ -125,7 +162,17 @@ public class BankStatements {
         }
         return b;
     }
-    
+    /**
+     *
+     * @param account fetched from URL path when date to is not provided 
+     * (current date set as default)
+     * @param fromStr fetched from URL path, if date cannot be parsed from the
+     * parameter a date 1970-01-01 is set as date from     
+     * @return Balance object for the requested account in a requested period in
+     * JSON
+     * @throws IOException
+     */
+
     @GET
     @Path("accounts/{account}/{from}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -142,7 +189,7 @@ public class BankStatements {
             } catch (ParseException ex) {
                 from = new Date(0);
             }
-            
+
             String currency = bs.get(0).getCurrency();
             BigDecimal balance = DB.filterByDate(bs, from, to).
                     stream().map(bsa -> bsa.getAmount()).
@@ -151,6 +198,18 @@ public class BankStatements {
         }
         return b;
     }
+    
+    /**
+     *
+     * @param account fetched from URL path when date from is not provided 
+     * (  date set as default)
+     * @param toStr fetched from URL path, if date cannot be parsed from the
+     * parameter a current date is set as date to     
+     * @return Balance object for the requested account in a requested period in
+     * JSON
+     * @throws IOException
+     */
+
     @GET
     @Path("accounts/{account}/from/{to}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -167,7 +226,7 @@ public class BankStatements {
             } catch (ParseException ex) {
                 from = new Date(0);
             }
-            
+
             String currency = bs.get(0).getCurrency();
             BigDecimal balance = DB.filterByDate(bs, from, to).
                     stream().map(bsa -> bsa.getAmount()).
