@@ -77,6 +77,59 @@ public class BankStatements {
                 .status(Response.Status.OK).
                 build();
     }
+    
+    @GET
+    @Path("all")
+    public Response exportAllToCSV() throws IOException {        
+        List<BankStatement> list = DB.readData(request.getServletContext());
+        if (list != null) {
+            DB.saveData(request.getServletContext(), list);
+        }
+        return Response
+                .status(Response.Status.OK).
+                build();
+    }
+    
+    @GET
+    @Path("{from}")
+    public Response exportToCSVFrom(
+            @PathParam("from") String fromStr) throws IOException {
+        Date from = null;
+        Date to = new Date();
+        try {
+            from = sdf.parse(fromStr);
+        } catch (ParseException ex) {
+            from = new Date(0);
+        }
+        
+        List<BankStatement> filteredByDate = DB.filterByDate(DB.readData(request.getServletContext()), from, to);
+        if (filteredByDate != null) {
+            DB.saveData(request.getServletContext(), filteredByDate);
+        }
+        return Response
+                .status(Response.Status.OK).
+                build();
+    }
+    
+    @GET
+    @Path("from/{to}")
+    public Response exportToCSVTo(            
+            @PathParam("to") String toStr) throws IOException {
+        Date from = new Date(0);
+        Date to = null;
+        try {
+            to = sdf.parse(toStr);
+        } catch (ParseException ex) {
+            to = new Date();
+        }
+        List<BankStatement> filteredByDate = DB.filterByDate(DB.readData(request.getServletContext()), from, to);
+        if (filteredByDate != null) {
+            DB.saveData(request.getServletContext(), filteredByDate);
+        }
+        return Response
+                .status(Response.Status.OK).
+                build();
+    }
 
     /**
      * Reads data from CSV file
