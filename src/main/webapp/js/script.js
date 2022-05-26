@@ -26,7 +26,7 @@ async function getAll() {
  */
 
 async function getAccounts() {
-    const res = await fetch(_url+"accounts");
+    const res = await fetch(_url + "accounts");
     if (res.status === 200) {
         return res.json();
     }
@@ -144,13 +144,10 @@ function calculateBalance() {
                 h3 = document.createElement("h3");
                 h3.appendChild(document.createTextNode("Calculate balance for period of time:"));
                 f.appendChild(h3);
-                let form = document.createElement("form");
-                form.action = "./bankStatements/accounts";
-                form.method = "POST";
                 let label = document.createElement("label");
                 label.for = "account";
                 label.appendChild(document.createTextNode("Select account"));
-                form.appendChild(label);
+                f.appendChild(label);
                 let select = document.createElement("select");
                 select.id = "account";
                 select.name = "account";
@@ -160,55 +157,82 @@ function calculateBalance() {
                     option.appendChild(document.createTextNode(el));
                     select.appendChild(option);
                 }
-                form.appendChild(select);
-                form.appendChild(document.createElement("br"));
+                f.appendChild(select);
+                f.appendChild(document.createElement("br"));
                 label = document.createElement("label");
                 label.for = "from";
                 label.appendChild(document.createTextNode("Date from"));
-                form.appendChild(label);
+                f.appendChild(label);
                 let input = document.createElement("input");
                 input.type = "date";
                 input.name = "from";
                 input.id = "from";
-                form.appendChild(input);
-                form.appendChild(document.createElement("br"));
+                f.appendChild(input);
+                f.appendChild(document.createElement("br"));
                 label = document.createElement("label");
                 label.for = "to";
                 label.appendChild(document.createTextNode("Date to"));
-                form.appendChild(label);
+                f.appendChild(label);
                 input = document.createElement("input");
                 input.type = "date";
                 input.name = "to";
                 input.id = "to";
-                form.appendChild(input);
-                form.appendChild(document.createElement("br"));
-                let submit = document.createElement("input");
-                submit.type = "submit";
-                submit.value = "Calculate balance";
-                form.appendChild(submit);
-                f.appendChild(form);
+                f.appendChild(input);
+                f.appendChild(document.createElement("br"));
+                let bt = document.createElement("button");
+                bt.appendChild(document.createTextNode("Calculate"));
+                bt.addEventListener("click", () => {
+                    let el = document.getElementById("account");
+                    const account = el.options[el.selectedIndex].value;
+                    let from = document.getElementById("from").value;
+                    if (!from){
+                        from="from";
+                    }
+                    let to = document.getElementById("from").value;
+                    if (!to){
+                        to="now";
+                    }
+                    let action = goTo(`${_url}accounts/${account}/${from}/${to}`);
+                    action
+                            .then(data => {
+                                if (data) {
+                                    showBalance();
+                                } else {
+                                    alert("Failed to load balance");
+                                }
+                            })
+                            .catch(err => {
+                                alert("Failed to load balance: " + err.message);
+                            });
+                });
+                f.appendChild(bt);
             })
             .catch(err => {
                 alert("Failed to load accounts list: " + err.message);
             });
 }
 
+async function goTo(loc)
+{
+    const res = await fetch(loc);
+    if (res.status === 200) {
+        return res.json();
+    }
+    throw new Error(`Unknown status: ${res.statusText} (${res.status})`)
+}
 
-//function showBalance() {
-//    const d = document.getElementById("data");
-//    const f = document.getElementById("form");
-//    cleanElement(d);
-//    cleanElement(f);
-//    getBalance().
-//            then(data => {
-//                h3 = document.createElement("h3");
-//                h3.appendChild(document.createTextNode(`Balance for account ${data.account}: ${data.balance} ${data.currency}`));
-//                d.appendChild(h3);
-//            })
-//            .catch(err => {
-//                alert("Failed to load balance: " + err.message);
-//            });
-//}
+
+
+
+function showBalance(data) {
+    const d = document.getElementById("data");
+    const f = document.getElementById("form");
+    cleanElement(d);
+    cleanElement(f);
+    h3 = document.createElement("h3");
+    h3.appendChild(document.createTextNode(`Balance for account ${data.accountNumber}: ${data.result} ${data.currency}`));
+    d.appendChild(h3);
+}
 
 
 
