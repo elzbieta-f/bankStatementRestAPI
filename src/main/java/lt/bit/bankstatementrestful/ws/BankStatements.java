@@ -74,6 +74,26 @@ public class BankStatements {
         Set<String> set = DB.getAccounts(request.getServletContext());
         return set;
     }
+    
+    @GET
+    @Path("accounts/{account}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Balance getBalanceDateless(
+            @PathParam("account") String account
+          ) throws IOException {
+        List<BankStatement> bs = DB.filterByAccountNumber(DB.readData(request.getServletContext()), account);
+        Balance b = null;
+        if (!bs.isEmpty()) {
+            Date from = new Date(0);
+            Date to = new Date();            
+            String currency = bs.get(0).getCurrency();
+            BigDecimal balance = DB.filterByDate(bs, from, to).
+                    stream().map(bsa -> bsa.getAmount()).
+                    reduce(BigDecimal.ZERO, BigDecimal::add);
+            b = new Balance(account, balance, currency);
+        }
+        return b;
+    }
 
     @GET
     @Path("accounts/{account}/{from}/{to}")
@@ -97,6 +117,57 @@ public class BankStatements {
             } catch (ParseException ex) {
                 to = new Date();
             }
+            String currency = bs.get(0).getCurrency();
+            BigDecimal balance = DB.filterByDate(bs, from, to).
+                    stream().map(bsa -> bsa.getAmount()).
+                    reduce(BigDecimal.ZERO, BigDecimal::add);
+            b = new Balance(account, balance, currency);
+        }
+        return b;
+    }
+    
+    @GET
+    @Path("accounts/{account}/{from}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Balance getBalanceFrom(
+            @PathParam("account") String account,
+            @PathParam("from") String fromStr) throws IOException {
+        List<BankStatement> bs = DB.filterByAccountNumber(DB.readData(request.getServletContext()), account);
+        Balance b = null;
+        if (!bs.isEmpty()) {
+            Date from = null;
+            Date to = new Date();
+            try {
+                from = sdf.parse(fromStr);
+            } catch (ParseException ex) {
+                from = new Date(0);
+            }
+            
+            String currency = bs.get(0).getCurrency();
+            BigDecimal balance = DB.filterByDate(bs, from, to).
+                    stream().map(bsa -> bsa.getAmount()).
+                    reduce(BigDecimal.ZERO, BigDecimal::add);
+            b = new Balance(account, balance, currency);
+        }
+        return b;
+    }
+    @GET
+    @Path("accounts/{account}/from/{to}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Balance getBalanceTo(
+            @PathParam("account") String account,
+            @PathParam("to") String toStr) throws IOException {
+        List<BankStatement> bs = DB.filterByAccountNumber(DB.readData(request.getServletContext()), account);
+        Balance b = null;
+        if (!bs.isEmpty()) {
+            Date from = null;
+            Date to = new Date();
+            try {
+                from = sdf.parse(toStr);
+            } catch (ParseException ex) {
+                from = new Date(0);
+            }
+            
             String currency = bs.get(0).getCurrency();
             BigDecimal balance = DB.filterByDate(bs, from, to).
                     stream().map(bsa -> bsa.getAmount()).
